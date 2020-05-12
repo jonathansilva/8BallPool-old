@@ -1,13 +1,14 @@
 import cv2
 import numpy as np
+import pyscreenshot as ImageGrab
 
-cap = cv2.VideoCapture(0)
+img = ImageGrab.grab(bbox = (100, 10, 400, 400))
 
 while True:
     ret, orig_frame = cap.read()
 
     if not ret:
-        cap = cv2.VideoCapture(0)
+        img = ImageGrab.grab(bbox = (100, 10, 400, 400))
         continue
 
     frame = cv2.GaussianBlur(orig_frame, (5, 5), 0)
@@ -25,12 +26,12 @@ while True:
     '''
 
     edges = cv2.Canny(mask, 75, 150)
-    lines = cv2.HoughLinesP(edges, rho = 1, theta = np.pi / 180, threshold = 50, maxLineGap = 50)
+    lines = cv2.HoughLinesP(edges, rho = 1, theta = np.pi / 180, threshold = 10, minLineLength = 1, maxLineGap = 50)
 
     if lines is not None:
         for line in lines:
             x1, y1, x2, y2 = line[0]
-            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 5)
+            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
             cv2.imshow("frame", frame)
 
