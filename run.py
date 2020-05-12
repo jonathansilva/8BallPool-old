@@ -1,14 +1,15 @@
 import cv2
 import numpy as np
 
-video = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0)
 
 while True:
-    ret, orig_frame = video.read()
+    ret, orig_frame = cap.read()
 
     if not ret:
-        video = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(0)
         continue
+
     frame = cv2.GaussianBlur(orig_frame, (5, 5), 0)
 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -16,8 +17,15 @@ while True:
     up_yellow = np.array([48, 255, 255])
     mask = cv2.inRange(hsv, low_yellow, up_yellow)
 
+    '''element = cv2.getStructuringElement(cv2.MORPH_CROSS,(6,6))
+    eroded = cv2.erode(img,element)
+    dilate = cv2.dilate(eroded, element)
+    skeleton = cv2.subtract(img, dilate)
+    gray = cv2.cvtColor(skeleton,cv2.COLOR_BGR2GRAY)
+    '''
+
     edges = cv2.Canny(mask, 75, 150)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 50, maxLineGap = 50)
+    lines = cv2.HoughLinesP(edges, rho = 1, theta = np.pi / 180, threshold = 50, maxLineGap = 50)
 
     if lines is not None:
         for line in lines:
@@ -32,5 +40,5 @@ while True:
     if key == 27:
         break
 
-video.release()
+cap.release()
 cv2.destroyAllWindows()
