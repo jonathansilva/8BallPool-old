@@ -2,44 +2,68 @@ import cv2
 import numpy as np
 import pyscreenshot as ImageGrab
 
-img = ImageGrab.grab(bbox = (100, 10, 400, 400))
+def passFunction():
+    pass
 
-while True:
-    ret, orig_frame = cap.read()
+def main():
+    # Tira screenshots da tela
+    #img = ImageGrab.grab(bbox = (100, 10, 400, 400))
 
-    if not ret:
-        img = ImageGrab.grab(bbox = (100, 10, 400, 400))
-        continue
+    # Pega a imagem original e modifica a escala
+    original_frame = cv2.imread('./screenshots/1.jpg')
 
-    frame = cv2.GaussianBlur(orig_frame, (5, 5), 0)
+    frame = cv2.GaussianBlur(original_frame, (5, 5), 0)
+    windowName = 'Original'
+    cv2.namedWindow(windowName)
 
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    low_yellow = np.array([18, 94, 140])
-    up_yellow = np.array([48, 255, 255])
-    mask = cv2.inRange(hsv, low_yellow, up_yellow)
+    threshold1 = 50
+    threshold2 = 150
+    cv2.createTrackbar('threshold 1', windowName, threshold1, 255, passFunction)
+    cv2.createTrackbar('threshold 2', windowName, threshold2, 255, passFunction)
 
-    '''element = cv2.getStructuringElement(cv2.MORPH_CROSS,(6,6))
-    eroded = cv2.erode(img,element)
-    dilate = cv2.dilate(eroded, element)
-    skeleton = cv2.subtract(img, dilate)
-    gray = cv2.cvtColor(skeleton,cv2.COLOR_BGR2GRAY)
-    '''
+    scale_percent = 50
+    original_width = int(original_frame.shape[1] * scale_percent / 100)
+    original_height = int(original_frame.shape[0] * scale_percent / 100)
+    frame = cv2.resize(original_frame, (original_width, original_height))
 
-    edges = cv2.Canny(mask, 75, 150)
-    lines = cv2.HoughLinesP(edges, rho = 1, theta = np.pi / 180, threshold = 10, minLineLength = 1, maxLineGap = 50)
+    # Bônus
+    height = frame.shape[0]
+    width = frame.shape[1]
 
-    if lines is not None:
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    print('Height: ', height)
+    print('Width: ', width)
 
-            cv2.imshow("frame", frame)
+    while True:
+        _threshold1 = cv2.getTrackbarPos('threshold 1', windowName)
+        _threshold2 = cv2.getTrackbarPos('threshold 2', windowName)
 
-    cv2.imshow("edges", edges)
-    key = cv2.waitKey(1)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
-    if key == 27:
-        break
+        lines = cv2.HoughLines(edges, rho = 1, theta = np.pi / 180, threshold = 50)
 
-cap.release()
-cv2.destroyAllWindows()
+        for rho, theta in lines[0]:
+            a = np.cos(theta)
+            b = np.sin(theta)
+            x0 = a * rho
+            y0 = b * rho
+            x1 = int(x0 + 1000 * (-b))
+            y1 = int(y0 + 1000 * (a))
+            x2 = int(x0 - 1000 * (-b))
+            y2 = int(y0 - 1000 * (a))
+
+            cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+        cv2.imshow(windowName, frame)
+        #cv2.imshow("Edges", edges)
+
+        key = cv2.waitKey(1)
+
+        if key == 27:
+            break
+
+    original_frame.release()
+    cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    main()
