@@ -140,10 +140,10 @@ def main():
     windowName = 'Original'
     cv2.namedWindow(windowName)
 
-    threshold1 = 255
-    threshold2 = 255
-    cv2.createTrackbar('threshold 1', windowName, threshold1, 255, passFunction)
-    cv2.createTrackbar('threshold 2', windowName, threshold2, 255, passFunction)
+    threshold1 = 425
+    threshold2 = 550
+    cv2.createTrackbar('threshold 1', windowName, threshold1, 425, passFunction)
+    cv2.createTrackbar('threshold 2', windowName, threshold2, 550, passFunction)
 
     # Modifica a escala
     scale_percent = 50
@@ -175,8 +175,8 @@ def main():
 
         original_image_with_hough_lines = weighted_frame(hough_lines_image, frame)
 
-        cv2.imshow(windowName, frame) # original_image_with_hough_lines
-        #cv2.imshow('Edges', edges)
+        cv2.imshow(windowName, original_image_with_hough_lines) # original_image_with_hough_lines
+        cv2.imshow('Edges', edges)
 
         key = cv2.waitKey(1)
 
