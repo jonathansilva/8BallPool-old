@@ -9,7 +9,6 @@ import numpy as np
 def passFunction():
     pass
 
-# Remover este retângulo e criar linhas ( 6 ) que vão servir como paredes da mesa
 def drawRectangle(frame):
     return cv2.rectangle(frame, (76, 85), (563, 329), (0, 0, 0), thickness = 1)
 
@@ -115,7 +114,7 @@ def drawLineBottomRight(frame):
     thickness = 3
     image = cv2.line(frame, start_point, end_point, color, thickness)
 
-def draw_lines(frame, lines):
+def houghLines(frame, lines):
     for rho, theta in lines[0]:
         a = np.cos(theta)
         b = np.sin(theta)
@@ -140,38 +139,43 @@ def main():
     windowName = 'Original'
     cv2.namedWindow(windowName)
 
-    threshold1 = 425
-    threshold2 = 550
-    cv2.createTrackbar('threshold 1', windowName, threshold1, 425, passFunction)
-    cv2.createTrackbar('threshold 2', windowName, threshold2, 550, passFunction)
-
     # Modifica a escala
     scale_percent = 50
     original_width = int(original_frame.shape[1] * scale_percent / 100)
     original_height = int(original_frame.shape[0] * scale_percent / 100)
     frame = cv2.resize(original_frame, (original_width, original_height))
 
+    threshold1 = 425
+    threshold2 = 550
+    threshold3 = 155
+    cv2.createTrackbar('threshold Canny 1', windowName, threshold1, 425, passFunction)
+    cv2.createTrackbar('threshold Canny 2', windowName, threshold2, 550, passFunction)
+    cv2.createTrackbar('threshold HoughLines', windowName, threshold3, 155, passFunction)
+
+    '''
     drawLineLeft(frame)
     drawLineRight(frame)
     drawLineTopLeft(frame)
     drawLineTopRight(frame)
     drawLineBottomLeft(frame)
     drawLineBottomRight(frame)
-
-    #drawRectangle(frame)
+    '''
+    drawRectangle(frame)
 
     while True:
-        _threshold1 = cv2.getTrackbarPos('threshold 1', windowName)
-        _threshold2 = cv2.getTrackbarPos('threshold 2', windowName)
+        _threshold1 = cv2.getTrackbarPos('threshold Canny 1', windowName)
+        _threshold2 = cv2.getTrackbarPos('threshold Canny 2', windowName)
+        _threshold3 = cv2.getTrackbarPos('threshold HoughLines', windowName)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
         edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
-        lines = cv2.HoughLines(edges, rho = 1, theta = np.pi / 180, threshold = 155)
+        lines = cv2.HoughLines(edges, rho = 1, theta = np.pi / 180, threshold = _threshold3)
 
         hough_lines_image = np.zeros_like(frame)
 
-        draw_lines(hough_lines_image, lines)
+        houghLines(hough_lines_image, lines)
 
         original_image_with_hough_lines = weighted_frame(hough_lines_image, frame)
 
