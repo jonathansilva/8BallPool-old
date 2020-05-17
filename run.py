@@ -3,7 +3,7 @@ import numpy as np
 #import pyscreenshot as ImageGrab
 
 '''
-    Resolução dos screenshots: 1080 x 1920
+    Resolução dos screenshots do smartphone: 1080 x 1920
 '''
 
 def passFunction():
@@ -42,7 +42,7 @@ def drawCirclesWhite(frame):
             cv2.circle(frame, (a, b), r, (0, 0, 255), 2)
             cv2.circle(frame, (a, b), 1, (0, 0, 0), 2)
 
-            cv2.imshow('Circles', frame)
+            #cv2.imshow('Circles', frame)
 
 def drawLineLeft(frame):
     width = frame.shape[1] # 640
@@ -168,16 +168,18 @@ def main():
 
     original_frame = cv2.imread('./screenshots/1.jpg')
 
-    width = original_frame.shape[1] # 640
-    height = original_frame.shape[0] # 360
+    width = original_frame.shape[1]
+    height = original_frame.shape[0]
 
-    print('Width: ', width)
-    print('Height: ', height)
+    print('Width: ', width) # 1280
+    print('Height: ', height) # 720
 
-    # Calcular as porcentagens dos números abaixo
-    xA = int(width * 0.100630)
-    xB = int(width * 0.158333)
-    board = original_frame[xA : 716, 100 : 1181] # [114 : 716, 100 : 1181]
+    xA = int(height * 0.161000) # Margin Top OK
+    xB = int(width * 0.557800) # Margin Bottom OK
+    yA = int(height * 0.138000) # Margin Left OK
+    yB = int(width * 0.921000) # Margin Right OK
+
+    board = original_frame[xA : xB, yA : yB]
     frame = board.copy()
 
     windowName = 'Original'
@@ -216,6 +218,7 @@ def main():
 
         edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
+        cv2.imshow('Testes', frame)
         #cv2.imshow('Edges', edges)
         #cv2.imshow('Mesa', board)
 
