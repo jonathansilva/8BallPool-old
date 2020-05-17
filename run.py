@@ -3,7 +3,7 @@ import numpy as np
 #import pyscreenshot as ImageGrab
 
 '''
-    Requerimento de resolução dos screenshots: 1080 x 1920
+    Resolução dos screenshots: 1080 x 1920
 '''
 
 def passFunction():
@@ -11,6 +11,38 @@ def passFunction():
 
 def drawRectangle(frame):
     return cv2.rectangle(frame, (76, 85), (563, 329), (0, 0, 0), thickness = 1)
+
+def drawCirclesHoles(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray_blurred = cv2.blur(gray, (3, 3))
+
+    holes = cv2.HoughCircles(gray_blurred, cv2.HOUGH_GRADIENT, 1, 20, param1 = 25, param2 = 25, minRadius = 12, maxRadius = 16)
+
+    if holes is not None:
+        holes = np.uint16(np.around(holes))
+
+        for pt in holes[0, :]:
+            a, b, r = pt[0], pt[1], pt[2]
+
+            cv2.circle(frame, (a, b), r, (0, 255, 0), 2)
+            cv2.circle(frame, (a, b), 1, (0, 0, 255), 2)
+
+def drawCirclesWhite(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray_blurred = cv2.blur(gray, (3, 3))
+
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1 = 25, param2 = 25, minRadius = 6, maxRadius = 10)
+
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+
+        for pt in circles[0, :]:
+            a, b, r = pt[0], pt[1], pt[2]
+
+            cv2.circle(frame, (a, b), r, (0, 0, 255), 2)
+            cv2.circle(frame, (a, b), 1, (0, 0, 0), 2)
+
+            cv2.imshow('Circles', frame)
 
 def drawLineLeft(frame):
     width = frame.shape[1] # 640
@@ -135,22 +167,32 @@ def main():
     #original_frame = ImageGrab.grab(bbox = (100, 10, 400, 400))
 
     original_frame = cv2.imread('./screenshots/1.jpg')
-    frame = original_frame.copy()
+
+    width = original_frame.shape[1] # 640
+    height = original_frame.shape[0] # 360
+
+    print('Width: ', width)
+    print('Height: ', height)
+
+    # Calcular as porcentagens dos números abaixo
+    xA = int(width * 0.100630)
+    xB = int(width * 0.158333)
+    board = original_frame[xA : 716, 100 : 1181] # [114 : 716, 100 : 1181]
+    frame = board.copy()
+
     windowName = 'Original'
     cv2.namedWindow(windowName)
 
     # Modifica a escala
     scale_percent = 50
-    original_width = int(original_frame.shape[1] * scale_percent / 100)
-    original_height = int(original_frame.shape[0] * scale_percent / 100)
-    frame = cv2.resize(original_frame, (original_width, original_height))
+    original_width = int(board.shape[1] * scale_percent / 100)
+    original_height = int(board.shape[0] * scale_percent / 100)
+    frame = cv2.resize(board, (original_width, original_height))
 
     threshold1 = 425
     threshold2 = 550
-    threshold3 = 155
     cv2.createTrackbar('threshold Canny 1', windowName, threshold1, 425, passFunction)
     cv2.createTrackbar('threshold Canny 2', windowName, threshold2, 550, passFunction)
-    cv2.createTrackbar('threshold HoughLines', windowName, threshold3, 155, passFunction)
 
     '''
     drawLineLeft(frame)
@@ -160,27 +202,22 @@ def main():
     drawLineBottomLeft(frame)
     drawLineBottomRight(frame)
     '''
-    drawRectangle(frame)
+
+    #drawRectangle(frame)
+    drawCirclesHoles(frame)
 
     while True:
         _threshold1 = cv2.getTrackbarPos('threshold Canny 1', windowName)
         _threshold2 = cv2.getTrackbarPos('threshold Canny 2', windowName)
-        _threshold3 = cv2.getTrackbarPos('threshold HoughLines', windowName)
+
+        drawCirclesWhite(frame)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
-        lines = cv2.HoughLines(edges, rho = 1, theta = np.pi / 180, threshold = _threshold3)
-
-        hough_lines_image = np.zeros_like(frame)
-
-        houghLines(hough_lines_image, lines)
-
-        original_image_with_hough_lines = weighted_frame(hough_lines_image, frame)
-
-        cv2.imshow(windowName, original_image_with_hough_lines) # original_image_with_hough_lines
-        cv2.imshow('Edges', edges)
+        #cv2.imshow('Edges', edges)
+        #cv2.imshow('Mesa', board)
 
         key = cv2.waitKey(1)
 
