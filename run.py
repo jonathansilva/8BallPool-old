@@ -6,7 +6,7 @@ import numpy as np
     Resolução dos screenshots do smartphone: 1080 x 1920
 '''
 
-def passFunction():
+def passFunction(val):
     pass
 
 def drawRectangle(frame):
@@ -168,11 +168,8 @@ def main():
 
     original_frame = cv2.imread('./screenshots/1.jpg')
 
-    width = original_frame.shape[1]
-    height = original_frame.shape[0]
-
-    print('Width: ', width) # 1280
-    print('Height: ', height) # 720
+    width = original_frame.shape[1] # 1280
+    height = original_frame.shape[0] # 720
 
     xA = int(height * 0.161000) # Margin Top OK
     xB = int(width * 0.557800) # Margin Bottom OK
@@ -218,8 +215,8 @@ def main():
 
         edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
-        cv2.imshow('Testes', frame)
-        #cv2.imshow('Edges', edges)
+        cv2.imshow('Frame', frame)
+        cv2.imshow('Edges', edges)
         #cv2.imshow('Mesa', board)
 
         key = cv2.waitKey(1)
