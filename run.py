@@ -6,7 +6,10 @@ import numpy as np
     Resolução dos screenshots do smartphone: 1080 x 1920
 '''
 
-def passFunction(val):
+windowName = 'Controles'
+cv2.namedWindow(windowName)
+
+def passFunction(x):
     pass
 
 def drawRectangle(frame):
@@ -29,9 +32,9 @@ def drawCirclesHoles(frame):
 
 def drawCirclesWhite(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray_blurred = cv2.blur(gray, (3, 3))
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0.496) # 0.496
 
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1 = 25, param2 = 25, minRadius = 6, maxRadius = 10)
+    circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.1, 14, param1 = 25, param2 = 25, minRadius = 6, maxRadius = 10)
 
     if circles is not None:
         circles = np.uint16(np.around(circles))
@@ -41,8 +44,6 @@ def drawCirclesWhite(frame):
 
             cv2.circle(frame, (a, b), r, (0, 0, 255), 2)
             cv2.circle(frame, (a, b), 1, (0, 0, 0), 2)
-
-            #cv2.imshow('Circles', frame)
 
 def drawLineLeft(frame):
     width = frame.shape[1] # 640
@@ -179,19 +180,24 @@ def main():
     board = original_frame[xA : xB, yA : yB]
     frame = board.copy()
 
-    windowName = 'Original'
-    cv2.namedWindow(windowName)
-
     # Modifica a escala
     scale_percent = 50
     original_width = int(board.shape[1] * scale_percent / 100)
     original_height = int(board.shape[0] * scale_percent / 100)
     frame = cv2.resize(board, (original_width, original_height))
 
-    threshold1 = 425
-    threshold2 = 550
-    cv2.createTrackbar('threshold Canny 1', windowName, threshold1, 425, passFunction)
-    cv2.createTrackbar('threshold Canny 2', windowName, threshold2, 550, passFunction)
+    cannyThreshold1 = 425
+    cannyThreshold2 = 550
+    #blurThreshold1 = 127
+    #blurThreshold2 = 255
+    #param1 = 25
+    #param2 = 25
+    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 425, passFunction)
+    cv2.createTrackbar('Canny 2', windowName, cannyThreshold2, 550, passFunction)
+    #cv2.createTrackbar('Blur Threshold 1', windowName, blurThreshold1, 127, passFunction)
+    #cv2.createTrackbar('Blur Threshold 2', windowName, blurThreshold2, 255, passFunction)
+    #cv2.createTrackbar('Param 1', windowName, param1, 25, passFunction)
+    #cv2.createTrackbar('Param 2', windowName, param2, 25, passFunction)
 
     '''
     drawLineLeft(frame)
@@ -206,18 +212,33 @@ def main():
     drawCirclesHoles(frame)
 
     while True:
-        _threshold1 = cv2.getTrackbarPos('threshold Canny 1', windowName)
-        _threshold2 = cv2.getTrackbarPos('threshold Canny 2', windowName)
-
-        drawCirclesWhite(frame)
+        _threshold1 = cv2.getTrackbarPos('Canny 1', windowName)
+        _threshold2 = cv2.getTrackbarPos('Canny 2', windowName)
+        #_blurThreshold1 = cv2.getTrackbarPos('Blur Threshold 1', windowName)
+        #_blurThreshold2 = cv2.getTrackbarPos('Blur Threshold 2', windowName)
+        #param1 = cv2.getTrackbarPos('Param 1', windowName)
+        #param2 = cv2.getTrackbarPos('Param 2', windowName)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
+        #drawCirclesWhite(frame)
+        blurred = cv2.GaussianBlur(gray, (0, 0), 0.496) # 0.496
+
+        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.1, 14, param1 = 25, param2 = 25, minRadius = 6, maxRadius = 10)
+
+        if circles is not None:
+            circles = np.uint16(np.around(circles))
+
+            for pt in circles[0, :]:
+                a, b, r = pt[0], pt[1], pt[2]
+
+                cv2.circle(frame, (a, b), r, (0, 0, 255), 2)
+                cv2.circle(frame, (a, b), 1, (0, 0, 0), 2)
+
         cv2.imshow('Frame', frame)
         cv2.imshow('Edges', edges)
-        #cv2.imshow('Mesa', board)
 
         key = cv2.waitKey(1)
 
