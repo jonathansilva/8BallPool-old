@@ -12,9 +12,6 @@ cv2.namedWindow(windowName)
 def passFunction(x):
     pass
 
-def drawRectangle(frame):
-    return cv2.rectangle(frame, (76, 85), (563, 329), (0, 0, 0), thickness = 1)
-
 def drawCirclesHoles(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray_blurred = cv2.blur(gray, (3, 3))
@@ -29,21 +26,6 @@ def drawCirclesHoles(frame):
 
             cv2.circle(frame, (a, b), r, (0, 255, 0), 2)
             cv2.circle(frame, (a, b), 1, (0, 0, 255), 2)
-
-def drawCirclesWhite(frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (3, 3), 0.496) # 0.496
-
-    circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.1, 14, param1 = 25, param2 = 25, minRadius = 6, maxRadius = 10)
-
-    if circles is not None:
-        circles = np.uint16(np.around(circles))
-
-        for pt in circles[0, :]:
-            a, b, r = pt[0], pt[1], pt[2]
-
-            cv2.circle(frame, (a, b), r, (0, 0, 255), 2)
-            cv2.circle(frame, (a, b), 1, (0, 0, 0), 2)
 
 def drawLineLeft(frame):
     width = frame.shape[1] # 640
@@ -186,10 +168,10 @@ def main():
     original_height = int(board.shape[0] * scale_percent / 100)
     frame = cv2.resize(board, (original_width, original_height))
 
-    cannyThreshold1 = 425
-    cannyThreshold2 = 550
+    cannyThreshold1 = 617
+    cannyThreshold2 = 1000
 
-    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 800, passFunction)
+    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 1000, passFunction)
     cv2.createTrackbar('Canny 2', windowName, cannyThreshold2, 1000, passFunction)
 
     '''
@@ -201,7 +183,6 @@ def main():
     drawLineBottomRight(frame)
     '''
 
-    #drawRectangle(frame)
     drawCirclesHoles(frame)
 
     while True:
@@ -212,7 +193,6 @@ def main():
 
         edges = cv2.Canny(gray, 617, 1000, apertureSize = 3)
 
-        #drawCirclesWhite(frame)
         blurred = cv2.GaussianBlur(edges, (0, 1), 0.496) # 0.496
 
         circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.8, 14, param1 = 26, param2 = 26, minRadius = 6, maxRadius = 10)
