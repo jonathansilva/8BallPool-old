@@ -6,10 +6,7 @@ import numpy as np
     Resolução dos screenshots do smartphone: 1080 x 1920
 '''
 
-windowName = 'Controles'
-cv2.namedWindow(windowName)
-
-def passFunction(x):
+def nothing(x):
     pass
 
 def drawCirclesHoles(frame):
@@ -168,12 +165,6 @@ def main():
     original_height = int(board.shape[0] * scale_percent / 100)
     frame = cv2.resize(board, (original_width, original_height))
 
-    cannyThreshold1 = 617
-    cannyThreshold2 = 1000
-
-    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 1000, passFunction)
-    cv2.createTrackbar('Canny 2', windowName, cannyThreshold2, 1000, passFunction)
-
     '''
     drawLineLeft(frame)
     drawLineRight(frame)
@@ -217,4 +208,13 @@ def main():
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
+    windowName = 'Controles'
+    cv2.namedWindow(windowName)
+
+    cannyThreshold1 = 617
+    cannyThreshold2 = 1000
+
+    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 1000, nothing)
+    cv2.createTrackbar('Canny 2', windowName, cannyThreshold2, 1000, nothing)
+
     main()
