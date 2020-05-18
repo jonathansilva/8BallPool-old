@@ -182,7 +182,7 @@ def main():
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        edges = cv2.Canny(gray, 617, 1000, apertureSize = 3)
+        edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
         blurred = cv2.GaussianBlur(edges, (0, 1), 0.496) # 0.496
 
