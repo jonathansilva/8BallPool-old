@@ -188,16 +188,9 @@ def main():
 
     cannyThreshold1 = 425
     cannyThreshold2 = 550
-    #blurThreshold1 = 127
-    #blurThreshold2 = 255
-    #param1 = 25
-    #param2 = 25
-    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 425, passFunction)
-    cv2.createTrackbar('Canny 2', windowName, cannyThreshold2, 550, passFunction)
-    #cv2.createTrackbar('Blur Threshold 1', windowName, blurThreshold1, 127, passFunction)
-    #cv2.createTrackbar('Blur Threshold 2', windowName, blurThreshold2, 255, passFunction)
-    #cv2.createTrackbar('Param 1', windowName, param1, 25, passFunction)
-    #cv2.createTrackbar('Param 2', windowName, param2, 25, passFunction)
+
+    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 800, passFunction)
+    cv2.createTrackbar('Canny 2', windowName, cannyThreshold2, 1000, passFunction)
 
     '''
     drawLineLeft(frame)
@@ -214,19 +207,15 @@ def main():
     while True:
         _threshold1 = cv2.getTrackbarPos('Canny 1', windowName)
         _threshold2 = cv2.getTrackbarPos('Canny 2', windowName)
-        #_blurThreshold1 = cv2.getTrackbarPos('Blur Threshold 1', windowName)
-        #_blurThreshold2 = cv2.getTrackbarPos('Blur Threshold 2', windowName)
-        #param1 = cv2.getTrackbarPos('Param 1', windowName)
-        #param2 = cv2.getTrackbarPos('Param 2', windowName)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
+        edges = cv2.Canny(gray, 617, 1000, apertureSize = 3)
 
         #drawCirclesWhite(frame)
-        blurred = cv2.GaussianBlur(gray, (0, 0), 0.496) # 0.496
+        blurred = cv2.GaussianBlur(edges, (0, 1), 0.496) # 0.496
 
-        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.1, 14, param1 = 25, param2 = 25, minRadius = 6, maxRadius = 10)
+        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.8, 14, param1 = 26, param2 = 26, minRadius = 6, maxRadius = 10)
 
         if circles is not None:
             circles = np.uint16(np.around(circles))
@@ -237,8 +226,8 @@ def main():
                 cv2.circle(frame, (a, b), r, (0, 0, 255), 2)
                 cv2.circle(frame, (a, b), 1, (0, 0, 0), 2)
 
-        cv2.imshow('Frame', frame)
         cv2.imshow('Edges', edges)
+        cv2.imshow('Frame', frame)
 
         key = cv2.waitKey(1)
 
