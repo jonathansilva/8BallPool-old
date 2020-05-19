@@ -128,17 +128,17 @@ def main():
     '''
 
     # Tira screenshots da tela
-    #original_frame = ImageGrab.grab(bbox = (100, 10, 400, 400))
+    #original_frame = ImageGrab.grab(bbox = ( ... ))
 
     original_frame = cv2.imread('./screenshots/1.jpg')
 
     width = original_frame.shape[1] # 1280
     height = original_frame.shape[0] # 720
 
-    xA = int(height * 0.161000) # Margin Top OK
-    xB = int(width * 0.557800) # Margin Bottom OK
-    yA = int(height * 0.138000) # Margin Left OK
-    yB = int(width * 0.921000) # Margin Right OK
+    xA = int(height * 0.161000) # Margin Top
+    xB = int(width * 0.557800) # Margin Bottom
+    yA = int(height * 0.138000) # Margin Left
+    yB = int(width * 0.921000) # Margin Right
 
     # Pega apenas a mesa
     board = original_frame[xA : xB, yA : yB]
