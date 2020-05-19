@@ -2,27 +2,8 @@ import cv2
 import numpy as np
 #import pyscreenshot as ImageGrab
 
-'''
-    Resolução dos screenshots do smartphone: 1080 x 1920
-'''
-
 def nothing(x):
     pass
-
-def drawCirclesHoles(frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray_blurred = cv2.blur(gray, (3, 3))
-
-    holes = cv2.HoughCircles(gray_blurred, cv2.HOUGH_GRADIENT, 1, 20, param1 = 25, param2 = 25, minRadius = 12, maxRadius = 16)
-
-    if holes is not None:
-        holes = np.uint16(np.around(holes))
-
-        for pt in holes[0, :]:
-            a, b, r = pt[0], pt[1], pt[2]
-
-            cv2.circle(frame, (a, b), r, (0, 255, 0), 2)
-            cv2.circle(frame, (a, b), 1, (0, 0, 255), 2)
 
 def drawLineLeft(frame):
     width = frame.shape[1] # 640
@@ -126,23 +107,26 @@ def drawLineBottomRight(frame):
     thickness = 3
     image = cv2.line(frame, start_point, end_point, color, thickness)
 
-def houghLines(frame, lines):
-    for rho, theta in lines[0]:
-        a = np.cos(theta)
-        b = np.sin(theta)
-        x0 = a * rho
-        y0 = b * rho
-        x1 = int(x0 + 1000 * (-b))
-        y1 = int(y0 + 1000 * (a))
-        x2 = int(x0 - 1000 * (-b))
-        y2 = int(y0 - 1000 * (a))
+def drawCirclesHoles(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.blur(gray, (3, 3))
 
-        cv2.line(frame, (x1, y1), (x2, y2), [0, 0, 255], thickness = 2)
+    holes = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1, 20, param1 = 25, param2 = 25, minRadius = 12, maxRadius = 16)
 
-def weighted_frame(hough_lines_image, frame):
-    return cv2.addWeighted(frame, 0.8, hough_lines_image, 1, 0)
+    if holes is not None:
+        holes = np.uint16(np.around(holes))
+
+        for pt in holes[0, :]:
+            a, b, r = pt[0], pt[1], pt[2]
+
+            cv2.circle(frame, (a, b), r, (0, 255, 0), 2)
+            cv2.circle(frame, (a, b), 1, (0, 0, 255), 2)
 
 def main():
+    '''
+        Resolução dos screenshots do smartphone: 1080 x 1920
+    '''
+
     # Tira screenshots da tela
     #original_frame = ImageGrab.grab(bbox = (100, 10, 400, 400))
 
@@ -156,15 +140,17 @@ def main():
     yA = int(height * 0.138000) # Margin Left OK
     yB = int(width * 0.921000) # Margin Right OK
 
+    # Pega apenas a mesa
     board = original_frame[xA : xB, yA : yB]
     frame = board.copy()
 
-    # Modifica a escala
+    # Modifica a escala da mesa em 50%
     scale_percent = 50
     original_width = int(board.shape[1] * scale_percent / 100)
     original_height = int(board.shape[0] * scale_percent / 100)
     frame = cv2.resize(board, (original_width, original_height))
 
+    # Paredes
     '''
     drawLineLeft(frame)
     drawLineRight(frame)
@@ -174,6 +160,7 @@ def main():
     drawLineBottomRight(frame)
     '''
 
+    # Caçapas
     drawCirclesHoles(frame)
 
     while True:
@@ -184,9 +171,9 @@ def main():
 
         edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
 
-        blurred = cv2.GaussianBlur(edges, (0, 1), 0.496) # 0.496
+        blurred = cv2.GaussianBlur(edges, (0, 0), 0.40)
 
-        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.8, 14, param1 = 26, param2 = 26, minRadius = 6, maxRadius = 10)
+        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.45, 1, param1 = 26, param2 = 26, minRadius = 6, maxRadius = 10)
 
         if circles is not None:
             circles = np.uint16(np.around(circles))
@@ -194,11 +181,11 @@ def main():
             for pt in circles[0, :]:
                 a, b, r = pt[0], pt[1], pt[2]
 
-                cv2.circle(frame, (a, b), r, (0, 0, 255), 2)
-                cv2.circle(frame, (a, b), 1, (0, 0, 0), 2)
+                cv2.circle(frame, (a, b), r, (0, 0, 255), 2) # Circulo
+                cv2.circle(frame, (a, b), 1, (0, 0, 0), 2) # Centro do circulo
 
-        cv2.imshow('Edges', edges)
-        cv2.imshow('Frame', frame)
+        cv2.imshow('Bordas', edges)
+        cv2.imshow('Resultado', frame)
 
         key = cv2.waitKey(1)
 
