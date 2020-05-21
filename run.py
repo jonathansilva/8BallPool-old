@@ -164,27 +164,8 @@ def main():
     drawCirclesHoles(frame)
 
     while True:
-        _threshold1 = cv2.getTrackbarPos('Canny 1', windowName)
-        _threshold2 = cv2.getTrackbarPos('Canny 2', windowName)
+        # Criar circulo com a linha
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        edges = cv2.Canny(gray, _threshold1, _threshold2, apertureSize = 3)
-
-        blurred = cv2.GaussianBlur(edges, (0, 0), 0.40)
-
-        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.45, 1, param1 = 26, param2 = 26, minRadius = 6, maxRadius = 10)
-
-        if circles is not None:
-            circles = np.uint16(np.around(circles))
-
-            for pt in circles[0, :]:
-                a, b, r = pt[0], pt[1], pt[2]
-
-                cv2.circle(frame, (a, b), r, (0, 0, 255), 2) # Circulo
-                cv2.circle(frame, (a, b), 1, (0, 0, 0), 2) # Centro do circulo
-
-        cv2.imshow('Bordas', edges)
         cv2.imshow('Resultado', frame)
 
         key = cv2.waitKey(1)
@@ -195,13 +176,4 @@ def main():
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    windowName = 'Controles'
-    cv2.namedWindow(windowName)
-
-    cannyThreshold1 = 617
-    cannyThreshold2 = 1000
-
-    cv2.createTrackbar('Canny 1', windowName, cannyThreshold1, 1000, nothing)
-    cv2.createTrackbar('Canny 2', windowName, cannyThreshold2, 1000, nothing)
-
     main()
