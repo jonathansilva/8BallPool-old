@@ -1,4 +1,8 @@
-## Pendências
+## Cancelado !
+- O OpenCV não detecta com precisão, o círculo de mira do taco
+- Link do novo projeto ( funcional ) usando Java para Android + Canvas https://github.com/jonathansilva/8BallPool
+
+### Pendências
 - Detectar apenas o circulo de mira
 - Traçar linhas do circulo até as caçapas
 
